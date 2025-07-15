@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTML Element Scraper</title>
+  </head>
+  <body>
+    <h1>HTML Element Scraper</h1>
+    <p>
+      This tool extracts &lt;h1&gt; to &lt;h6&gt;, &lt;p&gt;,
+      &lt;blockquote&gt;, and &lt;ol&gt; elements from HTML content.
+    </p>
+    <div>
+      <label for="htmlInput">Paste your HTML content here:</label>
+      <textarea
+        id="htmlInput"
+        placeholder="Paste your HTML article or excerpt here..."
+        style="
+          width: 100%;
+          height: 200px;
+          margin: 10px 0;
+          padding: 10px;
+          border: 1px solid #ccc;
+        "
+      ></textarea>
+    </div>
+
+    <div>
+      <button id="processBtn" onclick="processContent()">
+        Extract Elements
+      </button>
+    </div>
+    <div>
+      <h3>Extracted HTML (click to select all):</h3>
+      <textarea
+        id="preview"
+        readonly
+        onclick="this.select()"
+        style="
+          width: 100%;
+          height: 300px;
+          border: 1px solid #ccc;
+          padding: 10px;
+          font-family: monospace;
+          font-size: 12px;
+          resize: vertical;
+        "
+        placeholder="Extracted HTML content will appear here..."
+      ></textarea>
+    </div>
+
+    <div id="copySection" style="display: none; margin-top: 10px">
+      <button onclick="copyToClipboard()">Copy to Clipboard</button>
+      <span id="copyStatus" style="margin-left: 10px; color: green"></span>
+    </div>
+
+    <script>
+      let filteredContent = "";
+      function processContent() {
+        const htmlInput = document.getElementById("htmlInput");
+        const htmlContent = htmlInput.value.trim();
+
+        if (!htmlContent) {
+          alert("Please paste some HTML content first.");
+          return;
+        }
+
+        filteredContent = extractElements(htmlContent);
+
+        // Show extracted HTML in textarea
+        document.getElementById("preview").value = filteredContent;
+
+        // Show copy section
+        document.getElementById("copySection").style.display = "block";
+
+        // Clear any previous copy status
+        document.getElementById("copyStatus").textContent = "";
+      }
+      function extractElements(htmlContent) {
+        // Create a temporary DOM element to parse the HTML
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+
+        // Extract h1-h6, p, blockquote, and ol elements
+        const headings = tempDiv.querySelectorAll("h1, h2, h3, h4, h5, h6");
+        const paragraphs = tempDiv.querySelectorAll("p");
+        const blockquotes = tempDiv.querySelectorAll("blockquote");
+        const orderedLists = tempDiv.querySelectorAll("ol");
+
+        let result = "";
+
+        // Collect all elements with their original order by getting their positions
+        const allElements = [];
+
+        headings.forEach((el) => {
+          allElements.push({
+            element: el,
+            position: getElementPosition(el, tempDiv),
+          });
+        });
+
+        paragraphs.forEach((el) => {
+          allElements.push({
+            element: el,
+            position: getElementPosition(el, tempDiv),
+          });
+        });
+
+        blockquotes.forEach((el) => {
+          allElements.push({
+            element: el,
+            position: getElementPosition(el, tempDiv),
+          });
+        });
+
+        orderedLists.forEach((el) => {
+          allElements.push({
+            element: el,
+            position: getElementPosition(el, tempDiv),
+          });
+        });
+
+        // Sort by original position to maintain document order
+        allElements.sort((a, b) => a.position - b.position);
+
+        // Build the result HTML
+        allElements.forEach((item) => {
+          result += item.element.outerHTML + "\n";
+        });
+
+        return result;
+      }
+
+      function getElementPosition(element, container) {
+        // Simple way to get relative position of element in container
+        const allNodes = container.querySelectorAll("*");
+        for (let i = 0; i < allNodes.length; i++) {
+          if (allNodes[i] === element) {
+            return i;
+          }
+        }
+        return 0;
+      }
+      function copyToClipboard() {
+        const preview = document.getElementById("preview");
+        const copyStatus = document.getElementById("copyStatus");
+
+        // Select and copy the content
+        preview.select();
+        preview.setSelectionRange(0, 99999); // For mobile devices
+
+        try {
+          document.execCommand("copy");
+          copyStatus.textContent = "✓ Copied to clipboard!";
+          copyStatus.style.color = "green";
+        } catch (err) {
+          copyStatus.textContent =
+            "❌ Copy failed. Please select and copy manually.";
+          copyStatus.style.color = "red";
+        }
+
+        // Clear status after 3 seconds
+        setTimeout(() => {
+          copyStatus.textContent = "";
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>
