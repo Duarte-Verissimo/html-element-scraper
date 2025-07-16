@@ -87,7 +87,9 @@
         const paragraphs = tempDiv.querySelectorAll("p");
         const blockquotes = tempDiv.querySelectorAll("blockquote");
         const orderedLists = tempDiv.querySelectorAll("ol");
-        const unorderedLists = tempDiv.querySelectorAll("ul");
+        const unorderedLists = tempDiv.querySelectorAll(
+          "ul:not(.social-tools__menu)"
+        );
 
         let result = "";
 
