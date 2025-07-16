@@ -9,7 +9,7 @@
     <h1>HTML Element Scraper</h1>
     <p>
       This tool extracts &lt;h1&gt; to &lt;h6&gt;, &lt;p&gt;,
-      &lt;blockquote&gt;, and &lt;ol&gt; elements from HTML content.
+      &lt;blockquote&gt;, &lt;ol&gt;, and &lt;ul&gt; elements from HTML content.
     </p>
     <div>
       <label for="htmlInput">Paste your HTML content here:</label>
@@ -25,10 +25,12 @@
         "
       ></textarea>
     </div>
-
     <div>
       <button id="processBtn" onclick="processContent()">
         Extract Elements
+      </button>
+      <button id="clearBtn" onclick="clearContent()" style="margin-left: 10px">
+        Clear Input
       </button>
     </div>
     <div>
@@ -80,13 +82,12 @@
       function extractElements(htmlContent) {
         // Create a temporary DOM element to parse the HTML
         const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = htmlContent;
-
-        // Extract h1-h6, p, blockquote, and ol elements
+        tempDiv.innerHTML = htmlContent; // Extract h1-h6, p, blockquote, ol, and ul elements
         const headings = tempDiv.querySelectorAll("h1, h2, h3, h4, h5, h6");
         const paragraphs = tempDiv.querySelectorAll("p");
         const blockquotes = tempDiv.querySelectorAll("blockquote");
         const orderedLists = tempDiv.querySelectorAll("ol");
+        const unorderedLists = tempDiv.querySelectorAll("ul");
 
         let result = "";
 
@@ -113,8 +114,14 @@
             position: getElementPosition(el, tempDiv),
           });
         });
-
         orderedLists.forEach((el) => {
+          allElements.push({
+            element: el,
+            position: getElementPosition(el, tempDiv),
+          });
+        });
+
+        unorderedLists.forEach((el) => {
           allElements.push({
             element: el,
             position: getElementPosition(el, tempDiv),
@@ -142,6 +149,24 @@
         }
         return 0;
       }
+
+      function clearContent() {
+        // Clear the input textarea
+        document.getElementById("htmlInput").value = "";
+
+        // Clear the preview textarea
+        document.getElementById("preview").value = "";
+
+        // Hide the copy section
+        document.getElementById("copySection").style.display = "none";
+
+        // Clear any copy status
+        document.getElementById("copyStatus").textContent = "";
+
+        // Clear the filtered content variable
+        filteredContent = "";
+      }
+
       function copyToClipboard() {
         const preview = document.getElementById("preview");
         const copyStatus = document.getElementById("copyStatus");
